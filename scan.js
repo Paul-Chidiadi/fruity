@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const overlay = document.getElementById("overlay");
   const load = document.getElementById("load");
   const closeButton = document.getElementById("closeButton");
+  const closeBtn = document.getElementById("closeBtn");
   const bestMatchElement = document.getElementById("bestMatch");
   const confidenceElement = document.getElementById("confidence");
   const scannedImageElement = document.getElementById("scannedImage");
@@ -63,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Wait for the image to be loaded
     await imageLoaded;
-
+    console.log(imageLoaded);
     // Create a canvas element and draw the image onto it
     const ctx = canvas.getContext("2d");
     canvas.width = img.width;
@@ -72,7 +73,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Get the ImageData object
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
     // Return the ImageData object
     return imageData;
   };
@@ -80,6 +80,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Function to compare image with dataset
   const compareWithDataset = async (uploadedImage, imageUrl) => {
     // Define dataset containing paths to images
+    const labelings = ["Mango", "Guava", "Cashew", "Avocado", "African_Almond"];
     const dataset = [
       "./labels/almond.png",
       "./labels/almonddry.png",
@@ -98,19 +99,33 @@ document.addEventListener("DOMContentLoaded", async function () {
       "./labels/mangoleaf.png",
     ];
 
-    for (let i = 0; i < dataset.length; i++) {
-      const imageData = await loadImageToImageData(dataset[i]);
-      const activation = net.infer(imageData, true);
-      console.log(activation);
-      classifier.addExample(activation, i);
+    for (let a = 0; a < labelings.length; a++) {
+      for (let i = 0; i <= 50; i++) {
+        try {
+          const imageData = await loadImageToImageData(
+            `/Dataset/${labelings[a]}/${i}.jpg`
+          );
+          const activation = net.infer(imageData, true);
+          console.log(activation);
+          classifier.addExample(activation, a);
+        } catch (e) {
+          console.log(e);
+        }
+      }
     }
+    // for (let i = 0; i < dataset.length; i++) {
+    //   const imageData = await loadImageToImageData(dataset[i]);
+    //   const activation = net.infer(imageData, true);
+    //   console.log(activation);
+    //   classifier.addExample(activation, i);
+    // }
 
     if (classifier.getNumClasses() > 0) {
       const activation = net.infer(uploadedImage, true);
       const result = await classifier.predictClass(activation);
       console.log(result);
 
-      bestMatchElement.textContent = imageNames[result.label];
+      bestMatchElement.textContent = labelings[result.label];
       confidenceElement.textContent = result.confidences[result.label];
 
       // Display scanned image
@@ -137,7 +152,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     load.style.display = "flex";
-    compareWithDataset(imageData, imageUrl);
+    await compareWithDataset(imageData, imageUrl);
   });
 
   // Function to handle camera capture
@@ -166,7 +181,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             console.log(blob);
             const imageUrl = await readFileAsDataURL(blob);
             load.style.display = "flex";
-            compareWithDataset(imageData, imageUrl);
+            await compareWithDataset(imageData, imageUrl);
           }, "image/jpeg");
         });
         video.play();
@@ -259,6 +274,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Function to close overlay
   closeButton.addEventListener("click", () => {
     overlay.style.display = "none";
+  });
+  closeBtn.addEventListener("click", () => {
+    load.style.display = "none";
   });
 
   // Start webcam initially
