@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FRUITSCAN</title>
+    <link rel="stylesheet" href="index.css" />
+    <meta
+      name="description"
+      content="AI integrated application for detecting fruit type"
+    />
+    <meta name="author" content="Paul Chidiadi" />
+    <meta name="theme-color" content="#0a66c2" />
+    <link rel="manifest" href="manifest.json" />
+  </head>
+  <body>
+    <div class="splash" id="splash">
+      <i class="bx bx-lemon bx-spin"></i>
+      <h3>fruitScan</h3>
+    </div>
+
+    <script>
+      // Define a function to redirect to the "/scan" page after a delay
+      function redirectToScanPage() {
+        setTimeout(() => {
+          window.location.href = "/fruit.html";
+        }, 6000);
+      }
+
+      // Call the function when the page loads
+      window.onload = redirectToScanPage;
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) => console.log("service Worker: registered"))
+            .catch((err) => console.log(`service worker; Error:${err}`));
+        });
+      }
+    </script>
+  </body>
+</html>
