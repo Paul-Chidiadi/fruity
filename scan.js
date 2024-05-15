@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       })
       .then(function (stream) {
         video.srcObject = stream;
-        video.addEventListener("loadedmetadata", function () {
+        video.addEventListener("loadedmetadata", async function () {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
           canvas.width = video.videoWidth;
@@ -157,7 +157,13 @@ document.addEventListener("DOMContentLoaded", async function () {
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           // Process imageData with TensorFlow.js
           console.log(imageData);
-          compareWithDataset(imageData, imageData);
+
+          canvas.toBlob(async (blob) => {
+            // Use the blob as needed
+            console.log(blob);
+            const imageUrl = await readFileAsDataURL(blob);
+            compareWithDataset(imageData, imageUrl);
+          }, "image/jpeg");
         });
         video.play();
       })
