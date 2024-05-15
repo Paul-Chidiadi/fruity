@@ -52,6 +52,15 @@
       </div>
     </div>
 
+    <div class="overlay" id="load" style="display: none">
+      <div class="popup">
+        <span class="close-btn" id="closeButton">&times;</span>
+        <h1><i class="bx bx-check"></i>Detection Processing...</h1>
+        <small> Model is loading.. </small>
+        <div class="scanned-image" id="scannedImage"></div>
+      </div>
+    </div>
+
     <script src="scan.js"></script>
     <script>
       if ("serviceWorker" in navigator) {

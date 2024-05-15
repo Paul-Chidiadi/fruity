@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const captureButton = document.getElementById("captureButton");
   const galleryButton = document.getElementById("galleryButton");
   const overlay = document.getElementById("overlay");
+  const load = document.getElementById("load");
   const closeButton = document.getElementById("closeButton");
   const bestMatchElement = document.getElementById("bestMatch");
   const confidenceElement = document.getElementById("confidence");
@@ -116,6 +117,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       scannedImageElement.innerHTML = `<img src="${imageUrl}" width="150" height="150" alt="">`;
     }
 
+    load.style.display = "none";
     overlay.style.display = "flex";
   };
 
@@ -134,6 +136,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     canvas.height = img.height;
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    load.style.display = "flex";
     compareWithDataset(imageData, imageUrl);
   });
 
@@ -162,6 +165,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             // Use the blob as needed
             console.log(blob);
             const imageUrl = await readFileAsDataURL(blob);
+            load.style.display = "flex";
             compareWithDataset(imageData, imageUrl);
           }, "image/jpeg");
         });
