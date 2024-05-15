@@ -139,23 +139,49 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Function to handle camera capture
   captureButton.addEventListener("click", async () => {
-    const webcam = await tf.data.webcam(video);
-    const img = await webcam.capture();
-    // Convert the captured image to a canvas
-    const canvas = document.createElement("canvas");
-    canvas.width = img.shape[1];
-    canvas.height = img.shape[0];
-    const ctx = canvas.getContext("2d");
-    await tf.browser.toPixels(img, canvas);
+    navigator.mediaDevices
+      .getUserMedia({
+        video: { facingMode: "environment" }, // Use the rear camera
+        audio: false,
+      })
+      .then(function (stream) {
+        video.srcObject = stream;
+        video.addEventListener("loadedmetadata", function () {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Convert the canvas to a Blob
-    canvas.toBlob(async (blob) => {
-      // Use the blob as needed
-      console.log(blob);
-      const imageUrl = await readFileAsDataURL(blob);
-      const converted = tensorToImageData(img);
-      compareWithDataset(converted, imageUrl);
-    }, "image/jpeg");
+          // Convert canvas to TensorFlow.js tensor or other compatible format
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          // Process imageData with TensorFlow.js
+          console.log(imageData);
+          compareWithDataset(imageData, imageData);
+        });
+        video.play();
+      })
+      .catch(function (error) {
+        console.error("Error accessing camera:", error);
+      });
+
+    // const webcam = await tf.data.webcam(video);
+    // const img = await webcam.capture();
+    // // Convert the captured image to a canvas
+    // const canvas = document.createElement("canvas");
+    // canvas.width = img.shape[1];
+    // canvas.height = img.shape[0];
+    // const ctx = canvas.getContext("2d");
+    // await tf.browser.toPixels(img, canvas);
+
+    // // Convert the canvas to a Blob
+    // canvas.toBlob(async (blob) => {
+    //   // Use the blob as needed
+    //   console.log(blob);
+    //   const imageUrl = await readFileAsDataURL(blob);
+    //   const converted = tensorToImageData(img);
+    //   compareWithDataset(converted, imageUrl);
+    // }, "image/jpeg");
   });
 
   function readFileAsDataURL(file) {
