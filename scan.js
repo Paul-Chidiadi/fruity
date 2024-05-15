@@ -127,23 +127,47 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Function to handle file input change
   fileInput.addEventListener("change", async (event) => {
     const file = event.target.files[0];
-    console.log(file);
+    const imageUrl = await readFileAsDataURL(file);
     const img = await createImageBitmap(file);
     const ctx = canvas.getContext("2d");
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    compareWithDataset(imageData, file.name);
+    compareWithDataset(imageData, imageUrl);
   });
 
   // Function to handle camera capture
   captureButton.addEventListener("click", async () => {
     const webcam = await tf.data.webcam(video);
     const img = await webcam.capture();
-    const converted = tensorToImageData(img);
-    compareWithDataset(converted, img);
+    // Convert the captured image to a canvas
+    const canvas = document.createElement("canvas");
+    canvas.width = img.shape[1];
+    canvas.height = img.shape[0];
+    const ctx = canvas.getContext("2d");
+    await tf.browser.toPixels(img, canvas);
+
+    // Convert the canvas to a Blob
+    canvas.toBlob(async (blob) => {
+      // Use the blob as needed
+      console.log(blob);
+      const imageUrl = await readFileAsDataURL(blob);
+      const converted = tensorToImageData(img);
+      compareWithDataset(converted, imageUrl);
+    }, "image/jpeg");
   });
+
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   const tensorToImageData = (tensor) => {
     // Get the data from the TensorFlow tensor
@@ -177,7 +201,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function startWebcam() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { exact: "user" } },
+        video: { facingMode: { exact: "environment" } },
         audio: false,
       });
       video.srcObject = stream;

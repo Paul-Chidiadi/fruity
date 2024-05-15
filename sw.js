@@ -1,5 +1,3 @@
-importScripts("assets/lib/cache-polyfill.js");
-
 let CACHE_VERSION = "app-v0.00";
 // give all files path you want to work offline
 let CACHE_FILES = ["./", "index.html", "fruit.html"];
