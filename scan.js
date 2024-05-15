@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function startWebcam() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { exact: "environment" } },
+        video: { facingMode: "environment" },
         audio: false,
       });
       video.srcObject = stream;
@@ -210,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.log("Attempting to use front camera...");
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
+          video: { facingMode: "environment" },
           audio: false,
         });
         video.srcObject = stream;
